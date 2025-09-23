@@ -1,0 +1,246 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+{% load static %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+  <div class="pagetitle d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1>User Management</h1>
+      <nav>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:user_list' %}">Home</a></li>
+          <li class="breadcrumb-item active">Users</li>
+        </ol>
+      </nav>
+    </div>
+    <a href="{% url 'dashboard:user_create' %}" class="btn btn-primary btn-lg d-flex align-items-center gap-2">
+      <i class="bi bi-person-plus"></i>
+      <span>Add User</span>
+    </a>
+  </div>
+
+  <section class="section">
+    <div class="row g-3 mb-4">
+      <div class="col-xxl-3 col-sm-6">
+        <div class="card info-card users-card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary me-3">
+                <i class="bi bi-people fs-4"></i>
+              </div>
+              <div>
+                <h6 class="text-muted text-uppercase mb-1 small">Total Users</h6>
+                <h4 class="mb-0 fw-semibold">{{ stats.total }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-3 col-sm-6">
+        <div class="card info-card success-card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success me-3">
+                <i class="bi bi-person-check fs-4"></i>
+              </div>
+              <div>
+                <h6 class="text-muted text-uppercase mb-1 small">Active</h6>
+                <h4 class="mb-0 fw-semibold">{{ stats.active }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-3 col-sm-6">
+        <div class="card info-card warning-card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 text-secondary me-3">
+                <i class="bi bi-person-dash fs-4"></i>
+              </div>
+              <div>
+                <h6 class="text-muted text-uppercase mb-1 small">Inactive</h6>
+                <h4 class="mb-0 fw-semibold">{{ stats.inactive }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-3 col-sm-6">
+        <div class="card info-card primary-card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info me-3">
+                <i class="bi bi-funnel fs-4"></i>
+              </div>
+              <div>
+                <h6 class="text-muted text-uppercase mb-1 small">Filtered Result</h6>
+                <h4 class="mb-0 fw-semibold">{{ stats.filtered }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3 mb-4">
+          <div class="flex-grow-1 w-100">
+            <form method="get" class="row g-3 align-items-center">
+              <div class="col-md-6 col-xl-5">
+                <div class="form-floating">
+                  {{ filter_form.q }}
+                  <label for="id_q"><i class="bi bi-search me-2"></i>Search users</label>
+                </div>
+              </div>
+              <div class="col-md-3 col-xl-2">
+                <div class="form-floating">
+                  {{ filter_form.status }}
+                  <label for="id_status"><i class="bi bi-sliders me-2"></i>Status</label>
+                </div>
+              </div>
+              <div class="col-md-3 col-xl-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                  <i class="bi bi-funnel"></i>
+                  <span class="d-none d-lg-inline ms-1">Apply</span>
+                </button>
+                {% if active_filter.q or active_filter.status %}
+                  <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-secondary" aria-label="Clear filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </a>
+                {% endif %}
+              </div>
+            </form>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            {% if active_filter.q %}
+              <span class="badge rounded-pill text-bg-light border">
+                <i class="bi bi-search me-1"></i>{{ active_filter.q }}
+              </span>
+            {% endif %}
+            {% if active_filter.status == 'active' %}
+              <span class="badge rounded-pill text-bg-success-subtle text-success border border-success-subtle">
+                <i class="bi bi-check-circle me-1"></i>Active only
+              </span>
+            {% elif active_filter.status == 'inactive' %}
+              <span class="badge rounded-pill text-bg-secondary-subtle text-secondary border border-secondary-subtle">
+                <i class="bi bi-slash-circle me-1"></i>Inactive only
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col" class="d-none d-lg-table-cell">Email</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="d-none d-xl-table-cell">Joined</th>
+                <th scope="col" class="d-none d-xl-table-cell">Updated</th>
+                <th scope="col" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.username }} avatar" class="rounded-circle border border-primary-subtle" style="width: 44px; height: 44px; object-fit: cover;">
+                      {% else %}
+                        <span class="rounded-circle bg-primary bg-opacity-10 text-primary fw-semibold d-inline-flex align-items-center justify-content-center border border-primary-subtle" style="width: 44px; height: 44px;">
+                          {{ user.first_name|default:user.username|first|upper }}
+                        </span>
+                      {% endif %}
+                      <div>
+                        <a href="{% url 'dashboard:user_detail' user.pk %}" class="fw-semibold text-decoration-none">{{ user.username }}</a>
+                        <div class="text-muted small">{{ user.first_name }} {{ user.last_name }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="d-none d-lg-table-cell">{{ user.email }}</td>
+                  <td>
+                    {% if user.is_active %}
+                      <span class="badge rounded-pill text-bg-success-subtle text-success border border-success-subtle">Active</span>
+                    {% else %}
+                      <span class="badge rounded-pill text-bg-secondary-subtle text-secondary border border-secondary-subtle">Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td class="d-none d-xl-table-cell">{{ user.date_joined|date:"M d, Y at H:i" }}</td>
+                  <td class="d-none d-xl-table-cell">{{ user.updated_at|date:"M d, Y at H:i" }}</td>
+                  <td class="text-end">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Actions for {{ user.username }}">
+                      <a class="btn btn-outline-secondary" href="{% url 'dashboard:user_detail' user.pk %}" data-bs-toggle="tooltip" data-bs-title="View details">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <a class="btn btn-outline-primary" href="{% url 'dashboard:user_update' user.pk %}" data-bs-toggle="tooltip" data-bs-title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-name="{{ user.username }}" data-delete-url="{% url 'dashboard:user_delete' user.pk %}" >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-5">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                      <i class="bi bi-people fs-1 text-muted"></i>
+                      <p class="text-muted mb-0">No users found. Try adjusting the filters or create the first user.</p>
+                      <a href="{% url 'dashboard:user_create' %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-person-plus"></i>
+                        Add user
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if is_paginated %}
+          <nav class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-4" aria-label="User pagination">
+            <span class="text-muted small">Showing {{ users|length }} of {{ page_obj.paginator.count }} entries</span>
+            <ul class="pagination pagination-sm mb-0 shadow-sm">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?{% if active_filter.q %}q={{ active_filter.q|urlencode }}&amp;{% endif %}{% if active_filter.status %}status={{ active_filter.status }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">
+                    <i class="bi bi-chevron-left"></i>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+              {% endif %}
+
+              {% for num in paginator.page_range %}
+                {% if num == page_obj.number %}
+                  <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li class="page-item"><a class="page-link" href="?{% if active_filter.q %}q={{ active_filter.q|urlencode }}&amp;{% endif %}{% if active_filter.status %}status={{ active_filter.status }}&amp;{% endif %}page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?{% if active_filter.q %}q={{ active_filter.q|urlencode }}&amp;{% endif %}{% if active_filter.status %}status={{ active_filter.status }}&amp;{% endif %}page={{ page_obj.next_page_number }}">
+                    <i class="bi bi-chevron-right"></i>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+    </div>
+
+    {% include 'user_admin_view/partials/delete_modal.html' %}
+  </section>
+{% endblock %}

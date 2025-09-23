@@ -1,0 +1,70 @@
+{% extends 'store/base.html' %}
+
+{% block title %}NeoMart - Zamonaviy onlayn do'kon{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="hero-card mb-5">
+      <div class="hero-card-content">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-7">
+            <span class="feature-pill"><i class="bi bi-stars"></i> 2025 trend kolleksiya</span>
+            <h1 class="display-5 fw-bold mt-3">Mahsulotlaringizni NeoMart bilan tez soting, xaridlaringizni qulay bajaring.</h1>
+            <p class="lead">Minimalist interfeys, tezkor savatcha va real vaqt statistikasi - biznesingizni yangi bosqichga olib chiqing.</p>
+            <div class="d-flex flex-wrap gap-3 mt-4">
+              <a href="{% url 'store:product_list' %}" class="btn btn-light text-primary fw-semibold px-4 py-2">Katalogni ko'rish</a>
+              <a href="#featured" class="btn btn-outline-light fw-semibold px-4 py-2">Trend mahsulotlar</a>
+            </div>
+          </div>
+          <div class="col-lg-5 text-center text-lg-end">
+            <img src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=600&q=80" class="img-fluid rounded-4 shadow-lg" alt="Shopping illustration">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="mb-5">
+      <div class="section-heading">
+        <h2 class="h3">Asosiy kategoriyalar</h2>
+        <a href="{% url 'store:product_list' %}" class="btn btn-outline-primary btn-sm">Barchasi</a>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        {% for category in categories %}
+          <a href="{% url 'store:product_list_by_category' category.slug %}" class="category-chip{% if request.resolver_match.kwargs.category_slug == category.slug %} active{% endif %}">
+            <i class="bi bi-grid"></i>{{ category.name }}
+          </a>
+        {% empty %}
+          <p class="text-muted">Kategoriyalar hali qo'shilmagan.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="mb-5" id="featured">
+      <div class="section-heading">
+        <h2 class="h3">Trenddagi mahsulotlar</h2>
+        <a href="{% url 'store:product_list' %}?filter=featured" class="text-decoration-none">Hammasi ></a>
+      </div>
+      <div class="row g-4">
+        {% for product in featured_products %}
+          {% include 'store/partials/product_card.html' with product=product %}
+        {% empty %}
+          <p class="text-muted">Hozircha trend mahsulot qo'shilmagan.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <div class="section-heading">
+        <h2 class="h3">Yangi kelganlar</h2>
+        <a href="{% url 'store:product_list' %}?sort=new" class="text-decoration-none">Barchasi ></a>
+      </div>
+      <div class="row g-4">
+        {% for product in latest_products %}
+          {% include 'store/partials/product_card.html' with product=product %}
+        {% empty %}
+          <p class="text-muted">Hozircha yangi mahsulot yo'q.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+{% endblock %}

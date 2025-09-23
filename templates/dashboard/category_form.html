@@ -1,0 +1,41 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}Kategoriya{% endblock %}
+
+{% block content %}
+  <div class="pagetitle">
+    <h1>{% if object %}Kategoriyani tahrirlash{% else %}Yangi kategoriya{% endif %}</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:category_list' %}">Kategoriyalar</a></li>
+        <li class="breadcrumb-item active">{% if object %}Tahrirlash{% else %}Yaratish{% endif %}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-4">
+            {% for field in form %}
+              <div class="col-md-6">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'dashboard:category_list' %}" class="btn btn-light">Bekor qilish</a>
+            <button type="submit" class="btn btn-primary">Saqlash</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+{% endblock %}

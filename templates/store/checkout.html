@@ -1,0 +1,73 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Buyurtmani rasmiylashtirish - NeoMart{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <span class="step-indicator"><i class="bi bi-bag-check"></i> 2-qadam: ma'lumotlar</span>
+        <h1 class="h3 fw-semibold mt-3">Buyurtma tafsilotlari</h1>
+      </div>
+      <a href="{% url 'store:cart' %}" class="btn btn-outline-secondary">Savatchaga qaytish</a>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm p-4">
+          <h4 class="fw-semibold mb-3">Yetkazib berish manzili</h4>
+          <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">{{ address_form.full_name.label_tag }}{{ address_form.full_name }}</div>
+              <div class="col-md-6">{{ address_form.phone.label_tag }}{{ address_form.phone }}</div>
+              <div class="col-12">{{ address_form.line1.label_tag }}{{ address_form.line1 }}</div>
+              <div class="col-12">{{ address_form.line2.label_tag }}{{ address_form.line2 }}</div>
+              <div class="col-md-6">{{ address_form.city.label_tag }}{{ address_form.city }}</div>
+              <div class="col-md-6">{{ address_form.region.label_tag }}{{ address_form.region }}</div>
+              <div class="col-md-6">{{ address_form.postal_code.label_tag }}{{ address_form.postal_code }}</div>
+              <div class="col-md-6">{{ address_form.country.label_tag }}{{ address_form.country }}</div>
+              <div class="col-12 form-check form-switch">
+                {{ address_form.is_default }}{{ address_form.is_default.label_tag }}
+              </div>
+            </div>
+            <hr class="my-4">
+            <div class="mb-3">
+              {{ notes_form.notes.label_tag }}
+              {{ notes_form.notes }}
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-100">Buyurtmani tasdiqlash</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="total-box p-4 mb-4">
+          <h4 class="fw-semibold mb-3">Buyurtma xulosasi</h4>
+          <ul class="list-group list-group-flush mb-3">
+            {% for item in items %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="fw-semibold">{{ item.product.name }}</span>
+                  <div class="text-muted small">{{ item.quantity }} x {{ item.unit_price }} so'm</div>
+                </div>
+                <span class="fw-semibold">{{ item.subtotal }} so'm</span>
+              </li>
+            {% endfor %}
+          </ul>
+          <dl class="row mb-0">
+            <dt class="col-6 text-muted">Subtotal</dt>
+            <dd class="col-6 text-end fw-semibold">{{ totals.subtotal }} so'm</dd>
+            <dt class="col-6 text-muted">Chegirma</dt>
+            <dd class="col-6 text-end text-success">- {{ totals.discount }} so'm</dd>
+            <dt class="col-6 fw-semibold">Umumiy</dt>
+            <dd class="col-6 text-end fw-bold">{{ totals.total }} so'm</dd>
+          </dl>
+        </div>
+        <div class="card border-0 shadow-sm p-4">
+          <h6 class="fw-semibold mb-2">Xavfsiz to'lov</h6>
+          <p class="text-muted small mb-0">Biz Payme, Click va Uzum Pay kabi mahalliy to'lov tizimlari bilan integratsiyaga tayyormiz.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

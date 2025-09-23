@@ -1,0 +1,78 @@
+{% extends 'store/base.html' %}
+
+{% block title %}{{ product.name }} - NeoMart{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+          {% with image=product.images.first %}
+            {% if image %}
+              <img src="{{ image.image.url }}" class="w-100" style="object-fit: cover; max-height: 520px;" alt="{{ image.alt|default:product.name }}">
+            {% else %}
+              <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=80" class="w-100" alt="{{ product.name }}">
+            {% endif %}
+          {% endwith %}
+        </div>
+        {% if product.images.all|length > 1 %}
+          <div class="d-flex gap-2 mt-3">
+            {% for image in product.images.all %}
+              <img src="{{ image.image.url }}" class="rounded-3 border" style="width: 80px; height: 80px; object-fit: cover;" alt="{{ image.alt|default:product.name }}">
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-lg-6">
+        <div class="d-flex flex-column h-100">
+          <div class="mb-4">
+            <a href="{% url 'store:product_list_by_category' product.category.slug %}" class="text-muted text-decoration-none">{{ product.category.name }}</a>
+            <h1 class="h3 fw-semibold mt-2">{{ product.name }}</h1>
+            <p class="text-muted">{{ product.description|linebreaks }}</p>
+          </div>
+          <div class="mb-4">
+            <div class="d-flex align-items-baseline gap-3">
+              <span class="display-6 fw-semibold">{{ product.price }} so'm</span>
+              {% if product.compare_at_price %}
+                <span class="text-muted text-decoration-line-through">{{ product.compare_at_price }} so'm</span>
+              {% endif %}
+            </div>
+            <div class="text-muted mt-2">
+              {% if product.stock > 5 %}
+                <i class="bi bi-check-circle text-success"></i> Omborda mavjud
+              {% elif product.stock > 0 %}
+                <i class="bi bi-exclamation-triangle text-warning"></i> Oxirgi {{ product.stock }} dona
+              {% else %}
+                <i class="bi bi-x-circle text-danger"></i> Zahirada yo'q
+              {% endif %}
+            </div>
+          </div>
+          <form method="post" action="{% url 'store:add_to_cart' product.pk %}" class="card border-0 shadow-sm p-4">
+            {% csrf_token %}
+            <div class="mb-3">
+              {{ add_to_cart_form.quantity.label_tag }}
+              {{ add_to_cart_form.quantity }}
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">Savatchaga qo'shish</button>
+              <a href="{% url 'store:cart' %}" class="btn btn-outline-secondary">Savatchaga o'tish</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    {% if related_products %}
+      <section class="mt-5">
+        <div class="section-heading">
+          <h2 class="h4">O'xshash mahsulotlar</h2>
+        </div>
+        <div class="row g-4">
+          {% for related in related_products %}
+            {% include 'store/partials/product_card.html' with product=related %}
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}

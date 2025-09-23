@@ -1,0 +1,32 @@
+<div class="col-sm-6 col-lg-4 col-xxl-3">
+  <div class="card product-card h-100">
+    <div class="position-relative">
+      {% with image=product.images.first %}
+        {% if image %}
+          <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.alt|default:product.name }}">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="{{ product.name }}">
+        {% endif %}
+      {% endwith %}
+      {% if product.featured %}
+        <span class="badge badge-featured position-absolute top-0 start-0 m-3">Trend</span>
+      {% endif %}
+    </div>
+    <div class="card-body d-flex flex-column">
+      <a href="{% url 'store:product_detail' product.slug %}" class="text-decoration-none text-dark">
+        <h5 class="card-title fw-semibold">{{ product.name }}</h5>
+      </a>
+      <p class="text-muted small flex-grow-1">{{ product.short_description|default:product.category.name }}</p>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="price-tag">{{ product.price }} so'm</span>
+        {% if product.compare_at_price %}
+          <span class="price-compare">{{ product.compare_at_price }} so'm</span>
+        {% endif %}
+      </div>
+      <form method="post" action="{% url 'store:quick_add_to_cart' product.pk %}" class="mt-auto">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary w-100">Savatchaga qo'shish</button>
+      </form>
+    </div>
+  </div>
+</div>

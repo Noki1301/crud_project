@@ -1,0 +1,96 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}Buyurtma #{{ order.id }}{% endblock %}
+
+{% block content %}
+  <div class="pagetitle d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1>Buyurtma #{{ order.id }}</h1>
+      <nav>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:order_list' %}">Buyurtmalar</a></li>
+          <li class="breadcrumb-item active">#{{ order.id }}</li>
+        </ol>
+      </nav>
+    </div>
+    <a href="{% url 'dashboard:order_list' %}" class="btn btn-outline-secondary">Orqaga</a>
+  </div>
+
+  <section class="section">
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Mahsulotlar</h5>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Narx</th>
+                    <th>Jami</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in items %}
+                    <tr>
+                      <td>{{ item.product.name }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.unit_price }} so'm</td>
+                      <td>{{ item.subtotal }} so'm</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">Mahsulotlar yo'q.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-flex flex-column gap-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Buyurtma ma'lumotlari</h5>
+            <ul class="list-unstyled small mb-0">
+              <li class="mb-2"><strong>Mijoz:</strong> {{ order.user.get_full_name|default:order.user.username }}</li>
+              <li class="mb-2"><strong>Holat:</strong> {{ order.get_status_display }}</li>
+              <li class="mb-2"><strong>Chegirma:</strong> {{ order.discount }} so'm</li>
+              <li class="mb-2"><strong>Jami:</strong> {{ order.total }} so'm</li>
+              <li class="mb-2"><strong>Sana:</strong> {{ order.created_at|date:"M d, Y H:i" }}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Holatni yangilash</h5>
+            <form method="post">
+              {% csrf_token %}
+              {{ status_form.status.label_tag }}
+              {{ status_form.status }}
+              <div class="mt-3">
+                {{ status_form.notes.label_tag }}
+                {{ status_form.notes }}
+              </div>
+              <button type="submit" class="btn btn-primary mt-3">Saqlash</button>
+            </form>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Yetkazib berish</h5>
+            <address class="small mb-0">
+              {{ order.shipping_address.full_name }}<br>
+              {{ order.shipping_address.phone }}<br>
+              {{ order.shipping_address.line1 }} {% if order.shipping_address.line2 %}{{ order.shipping_address.line2 }}{% endif %}<br>
+              {{ order.shipping_address.city }}, {{ order.shipping_address.region }} {{ order.shipping_address.postal_code }}<br>
+              {{ order.shipping_address.country }}
+            </address>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

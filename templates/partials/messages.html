@@ -1,0 +1,23 @@
+{% if messages %}
+  <div class="container-fluid px-0 mb-3">
+    {% for message in messages %}
+      {% if 'error' in message.tags %}
+        {% with alert_class='danger' icon='exclamation-octagon' %}
+          {% include 'partials/message_body.html' %}
+        {% endwith %}
+      {% elif 'success' in message.tags %}
+        {% with alert_class='success' icon='check-circle' %}
+          {% include 'partials/message_body.html' %}
+        {% endwith %}
+      {% elif 'warning' in message.tags %}
+        {% with alert_class='warning' icon='exclamation-triangle' %}
+          {% include 'partials/message_body.html' %}
+        {% endwith %}
+      {% else %}
+        {% with alert_class=message.tags|default:"info" icon='info-circle' %}
+          {% include 'partials/message_body.html' %}
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}

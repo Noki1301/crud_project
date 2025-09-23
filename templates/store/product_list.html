@@ -1,0 +1,60 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Katalog - NeoMart{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h1 class="h3 fw-semibold mb-1">Mahsulot katalogi</h1>
+        {% if category %}
+          <p class="text-muted mb-0">Kategoriya: <strong>{{ category.name }}</strong></p>
+        {% elif search_query %}
+          <p class="text-muted mb-0">Qidiruv natijasi: <strong>{{ search_query }}</strong></p>
+        {% else %}
+          <p class="text-muted mb-0">Trendlarga mos zamonaviy mahsulotlar.</p>
+        {% endif %}
+      </div>
+      <a href="{% url 'store:cart' %}" class="btn btn-outline-primary">Savatchani ko'rish</a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a href="{% url 'store:product_list' %}" class="category-chip{% if not category %} active{% endif %}">Barchasi</a>
+      {% for cat in categories %}
+        <a href="{% url 'store:product_list_by_category' cat.slug %}" class="category-chip{% if category and category.slug == cat.slug %} active{% endif %}">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4">
+      {% for product in products %}
+        {% include 'store/partials/product_card.html' with product=product %}
+      {% empty %}
+        <p class="text-muted">Bu bo'limda hozircha mahsulot yo'q.</p>
+      {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+      <nav class="mt-5" aria-label="Mahsulotlar paginate">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&amp;q={{ search_query }}{% endif %}">Oldingi</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Oldingi</span></li>
+          {% endif %}
+          {% for num in paginator.page_range %}
+            {% if num == page_obj.number %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&amp;q={{ search_query }}{% endif %}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&amp;q={{ search_query }}{% endif %}">Keyingi</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Keyingi</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+{% endblock %}

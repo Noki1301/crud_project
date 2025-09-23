@@ -1,0 +1,144 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}Boshqaruv paneli{% endblock %}
+
+{% block content %}
+  <div class="pagetitle d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1>Umumiy ko'rinish</h1>
+      <nav>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active">Monitoring</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <section class="section dashboard">
+    <div class="row g-4">
+      <div class="col-xl-3 col-md-6">
+        <div class="card info-card primary-card">
+          <div class="card-body">
+            <h5 class="card-title">Faol mahsulotlar</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-box-seam"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ stats.products }}</h6>
+                <span class="text-muted small">Kategoriya: {{ stats.categories }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card info-card success-card">
+          <div class="card-body">
+            <h5 class="card-title">Buyurtmalar</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success">
+                <i class="bi bi-cart-check"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ stats.orders }}</h6>
+                <span class="text-muted small">Jami foydalanuvchilar: {{ stats.users }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card info-card warning-card">
+          <div class="card-body">
+            <h5 class="card-title">Daromad</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning">
+                <i class="bi bi-cash-coin"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ stats.revenue|floatformat:2 }} so'm</h6>
+                <span class="text-muted small">Paid &amp; Completed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card info-card warning-card">
+          <div class="card-body">
+            <h5 class="card-title">Past zaxira</h5>
+            <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger">
+                <i class="bi bi-exclamation-triangle"></i>
+              </div>
+              <div class="ps-3">
+                <h6>{{ low_stock|length }}</h6>
+                <span class="text-muted small">5 tadan kam</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-xxl-7">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Oxirgi buyurtmalar</h5>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Mijoz</th>
+                    <th>Holat</th>
+                    <th>Summasi</th>
+                    <th>Sana</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in latest_orders %}
+                    <tr>
+                      <td>{{ order.id }}</td>
+                      <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                      <td><span class="badge bg-light text-dark">{{ order.get_status_display }}</span></td>
+                      <td>{{ order.total }} so'm</td>
+                      <td>{{ order.created_at|date:"M d, H:i" }}</td>
+                      <td class="text-end"><a href="{% url 'dashboard:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary">Batafsil</a></td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">Buyurtmalar mavjud emas.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-5">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Zaxira bo'yicha ogohlantirish</h5>
+            <ul class="list-group list-group-flush">
+              {% for product in low_stock %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="fw-semibold">{{ product.name }}</div>
+                    <small class="text-muted">{{ product.category.name }}</small>
+                  </div>
+                  <span class="badge bg-danger-subtle text-danger">{{ product.stock }} dona</span>
+                </li>
+              {% empty %}
+                <li class="list-group-item text-muted">Hamma mahsulotlarda zaxira yetarli.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

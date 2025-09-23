@@ -1,0 +1,232 @@
+:root {
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --text-muted: #6b7280;
+  --bg-soft: #f8fafc;
+  --border-soft: #e5e7eb;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-soft);
+  color: #0f172a;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-mark {
+  color: var(--accent);
+}
+
+.store-header .navbar {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.store-footer {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.store-footer a:hover {
+  color: #fff;
+}
+
+.hero-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.85), rgba(79, 70, 229, 0.85));
+  border-radius: 1.5rem;
+  overflow: hidden;
+  color: #fff;
+  position: relative;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.35), transparent 55%);
+}
+
+.hero-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 3rem;
+}
+
+.product-card {
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+}
+
+.product-card img {
+  height: 220px;
+  object-fit: cover;
+}
+
+.price-tag {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.price-compare {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.badge-featured {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-heading h2 {
+  font-weight: 600;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: #fff;
+  font-weight: 500;
+  color: #1f2937;
+  transition: all 0.2s ease;
+}
+
+.category-chip:hover,
+.category-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+}
+
+.cart-card {
+  border-radius: 1rem;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+}
+
+.cart-item-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+.total-box {
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid var(--border-soft);
+}
+
+.step-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.3rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #4338ca);
+}
+
+.feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.order-success-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 55px rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+@media (max-width: 767px) {
+  .hero-card-content {
+    padding: 2rem;
+  }
+  .navbar .btn {
+    width: 100%;
+  }
+}
+
+
+.store-footer {
+  background: #0f172a;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.store-footer h5,
+.store-footer h6,
+.store-footer strong {
+  color: #f8fafc;
+}
+
+.store-footer p,
+.store-footer li {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.store-footer a {
+  color: rgba(191, 219, 254, 0.95);
+  text-decoration: none;
+}
+
+.store-footer a:hover {
+  color: #ffffff;
+}
+
+.store-footer .border-top,
+.store-footer hr {
+  border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+
+.store-footer .text-muted {
+  color: rgba(226, 232, 240, 0.85) !important;
+}
+
+.store-footer p,
+.store-footer li {
+  color: rgba(226, 232, 240, 0.88) !important;
+}
+
+.store-footer h5,
+.store-footer h6 {
+  color: #f8fafc;
+}

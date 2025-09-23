@@ -1,0 +1,61 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}{% if object %}Mahsulotni tahrirlash{% else %}Mahsulot qo'shish{% endif %}{% endblock %}
+
+{% block content %}
+  <div class="pagetitle">
+    <h1>{% if object %}Mahsulotni tahrirlash{% else %}Mahsulot qo'shish{% endif %}</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'dashboard:product_list' %}">Mahsulotlar</a></li>
+        <li class="breadcrumb-item active">{% if object %}Tahrirlash{% else %}Yaratish{% endif %}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="section">
+    <form method="post" enctype="multipart/form-data" novalidate class="row g-4">
+      {% csrf_token %}
+      <div class="col-xxl-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">{{ form.name.label_tag }}{{ form.name }}</div>
+              <div class="col-md-6">{{ form.category.label_tag }}{{ form.category }}</div>
+              <div class="col-12">{{ form.short_description.label_tag }}{{ form.short_description }}</div>
+              <div class="col-12">{{ form.description.label_tag }}{{ form.description }}</div>
+              <div class="col-md-4">{{ form.price.label_tag }}{{ form.price }}</div>
+              <div class="col-md-4">{{ form.compare_at_price.label_tag }}{{ form.compare_at_price }}</div>
+              <div class="col-md-4">{{ form.stock.label_tag }}{{ form.stock }}</div>
+              <div class="col-md-4 form-check form-switch">{{ form.is_active }}{{ form.is_active.label_tag }}</div>
+              <div class="col-md-4 form-check form-switch">{{ form.featured }}{{ form.featured.label_tag }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Asosiy rasm</h5>
+            {% if default_image %}
+              <img src="{{ default_image.image.url }}" class="rounded mb-3" style="width: 160px; height: 160px; object-fit: cover;" alt="{{ default_image.alt|default:object.name|default:form.name.value }}">
+            {% else %}
+              <div class="rounded bg-light border d-inline-flex align-items-center justify-content-center mb-3" style="width: 160px; height: 160px;">
+                <i class="bi bi-image text-muted fs-1"></i>
+              </div>
+            {% endif %}
+            <div class="text-start">
+              {{ form.main_image.label_tag }}
+              {{ form.main_image }}
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-between gap-2">
+            <a href="{% url 'dashboard:product_list' %}" class="btn btn-light w-50">Bekor qilish</a>
+            <button type="submit" class="btn btn-primary w-50">Saqlash</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </section>
+{% endblock %}

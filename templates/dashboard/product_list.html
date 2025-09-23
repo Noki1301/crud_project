@@ -1,0 +1,159 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}Mahsulotlar{% endblock %}
+
+{% block content %}
+  <div class="pagetitle d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1>Mahsulotlar boshqaruvi</h1>
+      <nav>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active">Mahsulotlar</li>
+        </ol>
+      </nav>
+    </div>
+    <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Mahsulot qo'shish</a>
+  </div>
+
+  <section class="section">
+    <div class="card mb-4">
+      <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label" for="id_q">Qidiruv</label>
+            {{ filter_form.q }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="id_status">Holati</label>
+            {{ filter_form.status }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="id_category">Kategoriya</label>
+            {{ filter_form.category }}
+          </div>
+          <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-outline-primary">Filtr</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card info-card users-card">
+          <div class="card-body">
+            <h5 class="card-title">Barcha mahsulotlar</h5>
+            <div class="d-flex align-items-center gap-3">
+              <div class="card-icon rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center">
+                <i class="bi bi-box"></i>
+              </div>
+              <div>
+                <h6>{{ total_products }}</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card info-card success-card">
+          <div class="card-body">
+            <h5 class="card-title">Faol</h5>
+            <div class="d-flex align-items-center gap-3">
+              <div class="card-icon rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center">
+                <i class="bi bi-check-circle"></i>
+              </div>
+              <div>
+                <h6>{{ active_products }}</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Mahsulot</th>
+                <th>Kategoriya</th>
+                <th>Narx</th>
+                <th>Zaxira</th>
+                <th>Holat</th>
+                <th>Trend</th>
+                <th class="text-end">Harakatlar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product in products %}
+                <tr>
+                  <td class="d-flex align-items-center gap-3">
+                    {% with image=product.images.first %}
+                      {% if image %}
+                        <img src="{{ image.image.url }}" class="rounded" style="width: 52px; height: 52px; object-fit: cover;" alt="{{ product.name }}">
+                      {% else %}
+                        <span class="badge bg-light text-dark p-3">{{ product.name|first|upper }}</span>
+                      {% endif %}
+                    {% endwith %}
+                    <div>
+                      <div class="fw-semibold">{{ product.name }}</div>
+                      <small class="text-muted">{{ product.short_description|default:"-" }}</small>
+                    </div>
+                  </td>
+                  <td>{{ product.category.name }}</td>
+                  <td>{{ product.price }} so'm</td>
+                  <td>{{ product.stock }}</td>
+                  <td>
+                    {% if product.is_active %}
+                      <span class="badge bg-success-subtle text-success">Faol</span>
+                    {% else %}
+                      <span class="badge bg-secondary-subtle text-secondary">Faol emas</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if product.featured %}
+                      <span class="badge bg-primary-subtle text-primary">Trend</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <a href="{% url 'dashboard:product_update' product.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'dashboard:product_delete' product.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-4">Mahsulot topilmadi.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if is_paginated %}
+          <nav class="mt-3" aria-label="Product pagination">
+            <ul class="pagination pagination-sm justify-content-end">
+              {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Oldingi</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Oldingi</span></li>
+              {% endif %}
+              {% for num in paginator.page_range %}
+                {% if num == page_obj.number %}
+                  <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+              {% endfor %}
+              {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Keyingi</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Keyingi</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

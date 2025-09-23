@@ -1,0 +1,61 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}Delete {{ user.username }}{% endblock %}
+
+{% block content %}
+  <div class="pagetitle d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1>Delete User</h1>
+      <nav>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:user_list' %}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:user_list' %}">Users</a></li>
+          <li class="breadcrumb-item active">Delete</li>
+        </ol>
+      </nav>
+    </div>
+    <a href="{% url 'dashboard:user_detail' user.pk %}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+      <i class="bi bi-arrow-left"></i>
+      Back to profile
+    </a>
+  </div>
+
+  <section class="section">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="d-flex flex-wrap gap-3 align-items-start">
+          <span class="rounded-circle bg-danger bg-opacity-10 text-danger d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+            <i class="bi bi-exclamation-octagon fs-3"></i>
+          </span>
+          <div class="flex-grow-1">
+            <h3 class="mb-2">Permanently delete {{ user.username }}?</h3>
+            <p class="text-muted mb-4">This action cannot be undone and will remove all data associated with this user record.</p>
+
+            <div class="bg-light border rounded-3 p-3 mb-4">
+              <ul class="list-unstyled mb-0 small">
+                <li class="d-flex align-items-center gap-2 mb-2">
+                  <i class="bi bi-person"></i>
+                  <strong>Username:</strong> {{ user.username }}
+                </li>
+                <li class="d-flex align-items-center gap-2 mb-2">
+                  <i class="bi bi-envelope"></i>
+                  <strong>Email:</strong> {{ user.email }}
+                </li>
+                <li class="d-flex align-items-center gap-2">
+                  <i class="bi bi-calendar-event"></i>
+                  <strong>Joined:</strong> {{ user.date_joined|date:"M d, Y H:i" }}
+                </li>
+              </ul>
+            </div>
+
+            <form method="post" class="d-flex flex-wrap gap-2">
+              {% csrf_token %}
+              <a href="{% url 'dashboard:user_detail' user.pk %}" class="btn btn-light flex-fill">Cancel</a>
+              <button type="submit" class="btn btn-danger flex-fill">Delete User</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'admin/NiceAdmin/base.html' %}
+
+{% block title %}Buyurtmalar{% endblock %}
+
+{% block content %}
+  <div class="pagetitle d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1>Buyurtmalar</h1>
+      <nav>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active">Buyurtmalar</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="card mb-4">
+      <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label" for="status">Holat</label>
+            <select class="form-select" name="status" id="status">
+              <option value="">Barchasi ({{ page_obj.paginator.count }})</option>
+              {% for item in status_summary %}
+                <option value="{{ item.value }}" {% if status == item.value %}selected{% endif %}>{{ item.label }} ({{ item.count }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary">Filtrlash</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Mijoz</th>
+                <th>Jami</th>
+                <th>Chegirma</th>
+                <th>Holat</th>
+                <th>Sana</th>
+                <th class="text-end">Harakat</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in orders %}
+                <tr>
+                  <td>#{{ order.id }}</td>
+                  <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                  <td>{{ order.total }} so'm</td>
+                  <td>{{ order.discount }} so'm</td>
+                  <td><span class="badge bg-light text-dark">{{ order.get_status_display }}</span></td>
+                  <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                  <td class="text-end"><a href="{% url 'dashboard:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary">Ko'rish</a></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-4">Buyurtmalar topilmadi.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if is_paginated %}
+          <nav class="mt-3" aria-label="Order pagination">
+            <ul class="pagination justify-content-end">
+              {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Oldingi</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Oldingi</span></li>
+              {% endif %}
+              {% for num in paginator.page_range %}
+                {% if num == page_obj.number %}
+                  <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+              {% endfor %}
+              {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Keyingi</a></li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Keyingi</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}
