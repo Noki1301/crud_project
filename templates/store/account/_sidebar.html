@@ -1,0 +1,18 @@
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-0">
+    <div class="list-group list-group-flush">
+      <a class="list-group-item list-group-item-action {% if account_section == 'dashboard' %}active{% endif %}" href="{% url 'store:account_dashboard' %}">
+        <span class="fw-semibold">Umumiy ma'lumot</span>
+      </a>
+      <a class="list-group-item list-group-item-action {% if account_section == 'orders' %}active{% endif %}" href="{% url 'store:account_orders' %}">
+        Buyurtmalarim
+      </a>
+      <a class="list-group-item list-group-item-action {% if account_section == 'profile' %}active{% endif %}" href="{% url 'store:account_profile' %}">
+        Profil ma'lumotlari
+      </a>
+      <a class="list-group-item list-group-item-action {% if account_section == 'security' %}active{% endif %}" href="{% url 'store:account_password_change' %}">
+        Xavfsizlik va parol
+      </a>
+    </div>
+  </div>
+</div>

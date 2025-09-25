@@ -1,0 +1,64 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Profil ma'lumotlari · NeoMart{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        {% include 'store/account/_sidebar.html' %}
+      </div>
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h1 class="h5 fw-semibold mb-3">Shaxsiy ma'lumotlarni yangilash</h1>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% for field in form %}
+                <div class="mb-3">
+                  {{ field.label_tag }}
+                  {{ field }}
+                  {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+              {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                  <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+              {% endif %}
+              <button type="submit" class="btn btn-primary">Saqlash</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h2 class="h6 fw-semibold mb-3">Mening manzillarim</h2>
+            {% if addresses %}
+              <div class="row g-3">
+                {% for address in addresses %}
+                  <div class="col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <p class="fw-semibold mb-1">{{ address.full_name }}</p>
+                      <p class="mb-1">{{ address.phone }}</p>
+                      <p class="mb-1">{{ address.line1 }}{% if address.line2 %}, {{ address.line2 }}{% endif %}</p>
+                      <p class="mb-1">{{ address.city }}, {{ address.region }}</p>
+                      <p class="small text-muted mb-0">{{ address.country }} {{ address.postal_code }}</p>
+                      {% if address.is_default %}
+                        <span class="badge text-bg-success mt-2">Asosiy</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Hozircha manzil qo'shilmagan. Buyurtma berishda sevimli manzillar saqlanadi.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Shaxsiy kabinet · NeoMart{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        {% include 'store/account/_sidebar.html' %}
+      </div>
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h1 class="h4 fw-semibold mb-3">Assalomu alaykum, {{ request.user.first_name|default:request.user.username }}!</h1>
+            <p class="text-muted mb-0">Bu yerda buyurtmalaringiz va shaxsiy ma'lumotlaringizni boshqarishingiz mumkin.</p>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body">
+                <span class="text-muted small">Jami buyurtmalar</span>
+                <h3 class="fw-semibold mb-0">{{ orders_count }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body">
+                <span class="text-muted small">Kutilayotgan buyurtmalar</span>
+                <h3 class="fw-semibold mb-0">{{ pending_orders }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body">
+                <span class="text-muted small">Umumiy xarajat</span>
+                <h3 class="fw-semibold mb-0">{{ total_spent }} so'm</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 fw-semibold mb-0">So'nggi buyurtmalar</h2>
+              <a href="{% url 'store:account_orders' %}" class="btn btn-sm btn-outline-primary">Barchasi</a>
+            </div>
+            {% if recent_orders %}
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Sana</th>
+                      <th>Holati</th>
+                      <th>Umumiy</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in recent_orders %}
+                      <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                        <td><span class="badge text-bg-light text-capitalize">{{ order.get_status_display }}</span></td>
+                        <td>{{ order.total }} so'm</td>
+                        <td class="text-end"><a href="{% url 'store:account_order_detail' order.pk %}" class="btn btn-sm btn-outline-secondary">Ko'rish</a></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Hozircha buyurtma qilmagansiz.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
+from .mixins import StaffRequiredMixin
 from .models import User
-from shop.models import Category, Product, Order, ProductImage
+from shop.models import Category, Product, Order
 from .forms import (
     UserForm,
     UserFilterForm,
@@ -25,7 +25,7 @@ from django.db.models import Q, Count, Sum, ProtectedError
 # Create your views here.
 
 
-class UserListView(ListView):
+class UserListView(StaffRequiredMixin, ListView):
     model = User
     template_name = "user_admin_view/user_list.html"
     context_object_name = "users"
@@ -67,13 +67,13 @@ class UserListView(ListView):
         return context
 
 
-class UserDetailView(DetailView):
+class UserDetailView(StaffRequiredMixin, DetailView):
     model = User
     template_name = "user_admin_view/user_detail.html"
     context_object_name = "user"
 
 
-class UserCreateView(CreateView):
+class UserCreateView(StaffRequiredMixin, CreateView):
     model = User
     template_name = "user_admin_view/user_form.html"
     form_class = UserForm
@@ -85,7 +85,7 @@ class UserCreateView(CreateView):
         return response
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(StaffRequiredMixin, UpdateView):
     model = User
     template_name = "user_admin_view/user_form.html"
     form_class = UserForm
@@ -97,7 +97,7 @@ class UserUpdateView(UpdateView):
         return response
 
 
-class UserDeleteView(DeleteView):
+class UserDeleteView(StaffRequiredMixin, DeleteView):
     model = User
     template_name = "user_admin_view/user_confirm_delete.html"
     context_object_name = "user"
@@ -112,7 +112,7 @@ class UserDeleteView(DeleteView):
 
 
 
-class DashboardHomeView(LoginRequiredMixin, TemplateView):
+class DashboardHomeView(StaffRequiredMixin, TemplateView):
     template_name = "dashboard/overview.html"
 
     def get_context_data(self, **kwargs):
@@ -136,7 +136,7 @@ class DashboardHomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CategoryAdminListView(LoginRequiredMixin, ListView):
+class CategoryAdminListView(StaffRequiredMixin, ListView):
     model = Category
     template_name = "dashboard/category_list.html"
     context_object_name = "categories"
@@ -150,7 +150,7 @@ class CategoryAdminListView(LoginRequiredMixin, ListView):
         )
 
 
-class CategoryAdminCreateView(LoginRequiredMixin, CreateView):
+class CategoryAdminCreateView(StaffRequiredMixin, CreateView):
     model = Category
     form_class = CategoryForm
     template_name = "dashboard/category_form.html"
@@ -167,7 +167,7 @@ class CategoryAdminCreateView(LoginRequiredMixin, CreateView):
         return response
 
 
-class CategoryAdminUpdateView(LoginRequiredMixin, UpdateView):
+class CategoryAdminUpdateView(StaffRequiredMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = "dashboard/category_form.html"
@@ -184,7 +184,7 @@ class CategoryAdminUpdateView(LoginRequiredMixin, UpdateView):
         return response
 
 
-class CategoryAdminDeleteView(LoginRequiredMixin, DeleteView):
+class CategoryAdminDeleteView(StaffRequiredMixin, DeleteView):
     model = Category
     template_name = "dashboard/category_confirm_delete.html"
     success_url = reverse_lazy("dashboard:category_list")
@@ -200,7 +200,7 @@ class CategoryAdminDeleteView(LoginRequiredMixin, DeleteView):
             return redirect("dashboard:category_list")
 
 
-class ProductAdminListView(LoginRequiredMixin, ListView):
+class ProductAdminListView(StaffRequiredMixin, ListView):
     model = Product
     template_name = "dashboard/product_list.html"
     context_object_name = "products"
@@ -232,7 +232,7 @@ class ProductAdminListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProductAdminCreateView(LoginRequiredMixin, CreateView):
+class ProductAdminCreateView(StaffRequiredMixin, CreateView):
     model = Product
     form_class = ProductAdminForm
     template_name = "dashboard/product_form.html"
@@ -249,7 +249,7 @@ class ProductAdminCreateView(LoginRequiredMixin, CreateView):
         return response
 
 
-class ProductAdminUpdateView(LoginRequiredMixin, UpdateView):
+class ProductAdminUpdateView(StaffRequiredMixin, UpdateView):
     model = Product
     form_class = ProductAdminForm
     template_name = "dashboard/product_form.html"
@@ -267,7 +267,7 @@ class ProductAdminUpdateView(LoginRequiredMixin, UpdateView):
         return response
 
 
-class ProductAdminDeleteView(LoginRequiredMixin, DeleteView):
+class ProductAdminDeleteView(StaffRequiredMixin, DeleteView):
     model = Product
     template_name = "dashboard/product_confirm_delete.html"
     success_url = reverse_lazy("dashboard:product_list")
@@ -283,7 +283,7 @@ class ProductAdminDeleteView(LoginRequiredMixin, DeleteView):
             return redirect("dashboard:product_list")
 
 
-class OrderAdminListView(LoginRequiredMixin, ListView):
+class OrderAdminListView(StaffRequiredMixin, ListView):
     model = Order
     template_name = "dashboard/order_list.html"
     context_object_name = "orders"
@@ -307,7 +307,7 @@ class OrderAdminListView(LoginRequiredMixin, ListView):
         return context
 
 
-class OrderAdminDetailView(LoginRequiredMixin, DetailView):
+class OrderAdminDetailView(StaffRequiredMixin, DetailView):
     model = Order
     template_name = "dashboard/order_detail.html"
     context_object_name = "order"

@@ -1,15 +1,27 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordChangeView
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 
-from .forms import AddToCartForm, AddressForm, CheckoutNotesForm, CouponApplyForm
-from .models import Cart, CartItem, Category, Product
+from .forms import (
+    AddToCartForm,
+    AddressForm,
+    CheckoutNotesForm,
+    CouponApplyForm,
+    ProfileUpdateForm,
+    StoreRegistrationForm,
+)
+from .models import Cart, CartItem, Category, Order, Product
 from .services import CartManager, checkout_cart
 
 
@@ -234,13 +246,34 @@ class StoreLoginView(View):
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
-        from django.contrib.auth import login
-
         form = self.get_form(request, data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
             messages.success(request, "Xush kelibsiz!")
-            return redirect(request.GET.get("next") or "store:home")
+            return redirect(request.GET.get("next") or "store:account_dashboard")
+        return render(request, self.template_name, {"form": form})
+
+
+class StoreRegisterView(View):
+    template_name = "store/auth_register.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.info(request, "Siz allaqachon tizimdasiz.")
+            return redirect("store:account_dashboard")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        form = StoreRegistrationForm()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request):
+        form = StoreRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi.")
+            return redirect("store:account_dashboard")
         return render(request, self.template_name, {"form": form})
 
 
@@ -254,3 +287,129 @@ class StoreLogoutView(View):
 
     def get(self, request):
         return redirect("store:home")
+
+
+class AccountBaseView(StoreBaseMixin, LoginRequiredMixin):
+    login_url = reverse_lazy("store:login")
+    redirect_field_name = "next"
+
+
+class AccountDashboardView(AccountBaseView, TemplateView):
+    template_name = "store/account/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_qs = (
+            Order.objects.filter(user=self.request.user)
+            .select_related("shipping_address")
+            .order_by("-created_at")
+        )
+        revenue = (
+            order_qs.filter(status__in=[Order.Status.PAID, Order.Status.COMPLETED])
+            .aggregate(sum_total=Sum("total"))
+            .get("sum_total")
+            or Decimal("0.00")
+        )
+        context.update(
+            {
+                "recent_orders": order_qs[:5],
+                "orders_count": order_qs.count(),
+                "pending_orders": order_qs.filter(status=Order.Status.PENDING).count(),
+                "total_spent": revenue,
+                "account_section": "dashboard",
+            }
+        )
+        return context
+
+
+class AccountOrderListView(AccountBaseView, ListView):
+    template_name = "store/account/orders.html"
+    context_object_name = "orders"
+    paginate_by = 10
+
+    def get_queryset(self):
+        return (
+            Order.objects.filter(user=self.request.user)
+            .select_related("shipping_address", "coupon")
+            .prefetch_related("items__product")
+            .order_by("-created_at")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["account_section"] = "orders"
+        return context
+
+
+class AccountOrderDetailView(AccountBaseView, DetailView):
+    model = Order
+    template_name = "store/account/order_detail.html"
+    context_object_name = "order"
+
+    def get_queryset(self):
+        return (
+            Order.objects.filter(user=self.request.user)
+            .select_related("shipping_address", "coupon")
+            .prefetch_related("items__product")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["items"] = self.object.items.select_related("product")
+        context["account_section"] = "orders"
+        return context
+
+
+class AccountProfileUpdateView(AccountBaseView, View):
+    template_name = "store/account/profile.html"
+
+    def get(self, request):
+        form = ProfileUpdateForm(instance=request.user)
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "addresses": request.user.addresses.all(),
+                "account_section": "profile",
+            },
+        )
+
+    def post(self, request):
+        form = ProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profil ma'lumotlari yangilandi.")
+            return redirect("store:account_profile")
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "addresses": request.user.addresses.all(),
+                "account_section": "profile",
+            },
+        )
+
+
+class AccountPasswordChangeView(AccountBaseView, PasswordChangeView):
+    template_name = "store/account/password_change.html"
+    success_url = reverse_lazy("store:account_dashboard")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Parol muvaffaqiyatli yangilandi.")
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        for field in form.fields.values():
+            classes = field.widget.attrs.get("class", "").split()
+            if "form-control" not in classes:
+                classes.append("form-control")
+            field.widget.attrs["class"] = " ".join(classes).strip()
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["account_section"] = "security"
+        return context

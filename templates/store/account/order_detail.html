@@ -1,0 +1,78 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Buyurtma #{{ order.id }} · NeoMart{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        {% include 'store/account/_sidebar.html' %}
+      </div>
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body d-flex justify-content-between align-items-start">
+            <div>
+              <h1 class="h5 fw-semibold mb-1">Buyurtma #{{ order.id }}</h1>
+              <p class="text-muted mb-0">{{ order.created_at|date:"d.m.Y H:i" }}</p>
+            </div>
+            <span class="badge text-bg-light text-capitalize">{{ order.get_status_display }}</span>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <h2 class="h6 fw-semibold mb-3">Yetkazib berish manzili</h2>
+            <p class="mb-1 fw-semibold">{{ order.shipping_address.full_name }}</p>
+            <p class="mb-1">{{ order.shipping_address.phone }}</p>
+            <p class="mb-1">{{ order.shipping_address.line1 }}{% if order.shipping_address.line2 %}, {{ order.shipping_address.line2 }}{% endif %}</p>
+            <p class="mb-0">{{ order.shipping_address.city }}, {{ order.shipping_address.region }} {{ order.shipping_address.postal_code }}</p>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h2 class="h6 fw-semibold mb-3">Buyurtma tarkibi</h2>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Mahsulot</th>
+                    <th class="text-center">Miqdor</th>
+                    <th class="text-end">Narx</th>
+                    <th class="text-end">Jami</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in items %}
+                    <tr>
+                      <td>{{ item.product.name }}</td>
+                      <td class="text-center">{{ item.quantity }}</td>
+                      <td class="text-end">{{ item.unit_price }} so'm</td>
+                      <td class="text-end">{{ item.subtotal }} so'm</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="3" class="text-end">Oraliq summa</th>
+                    <td class="text-end">{{ order.subtotal }} so'm</td>
+                  </tr>
+                  {% if order.discount %}
+                    <tr>
+                      <th colspan="3" class="text-end">Chegirma</th>
+                      <td class="text-end">-{{ order.discount }} so'm</td>
+                    </tr>
+                  {% endif %}
+                  <tr>
+                    <th colspan="3" class="text-end">Umumiy</th>
+                    <td class="text-end fw-semibold">{{ order.total }} so'm</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
