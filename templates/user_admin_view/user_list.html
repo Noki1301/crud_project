@@ -171,7 +171,7 @@
                     {% endif %}
                   </td>
                   <td class="d-none d-xl-table-cell">{{ user.date_joined|date:"M d, Y at H:i" }}</td>
-                  <td class="d-none d-xl-table-cell">{{ user.updated_at|date:"M d, Y at H:i" }}</td>
+                  <td class="d-none d-xl-table-cell">{{ user.last_login|date:"M d, Y at H:i"|default:"-" }}</td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group" aria-label="Actions for {{ user.username }}">
                       <a class="btn btn-outline-secondary" href="{% url 'dashboard:user_detail' user.pk %}" data-bs-toggle="tooltip" data-bs-title="View details">

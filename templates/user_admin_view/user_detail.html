@@ -96,8 +96,8 @@
                   <i class="bi bi-arrow-repeat"></i>
                 </span>
                 <div>
-                  <h6 class="mb-1 text-muted text-uppercase small">Last Updated</h6>
-                  <p class="mb-0 fw-semibold">{{ user.updated_at|date:"M d, Y H:i" }}</p>
+                  <h6 class="mb-1 text-muted text-uppercase small">Last Login</h6>
+                  <p class="mb-0 fw-semibold">{{ user.last_login|date:"M d, Y H:i"|default:'-' }}</p>
                 </div>
               </li>
             </ul>

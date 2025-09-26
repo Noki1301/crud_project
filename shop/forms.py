@@ -76,9 +76,33 @@ class StoreRegistrationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["username"].widget.attrs.update({"class": "form-control", "placeholder": "Foydalanuvchi nomi"})
-        self.fields["password1"].widget.attrs.update({"class": "form-control", "placeholder": "Parol"})
-        self.fields["password2"].widget.attrs.update({"class": "form-control", "placeholder": "Parolni tasdiqlang"})
+        labels = {
+            "first_name": "Ism",
+            "last_name": "Familiya",
+            "username": "Foydalanuvchi nomi",
+            "email": "Email manzil",
+            "password1": "Parol",
+            "password2": "Parolni tasdiqlang",
+        }
+        placeholders = {
+            "first_name": "Ismingiz",
+            "last_name": "Familiyangiz",
+            "username": "foydalanuvchi",
+            "email": "email@example.com",
+            "password1": "Kamida 8 ta belgi",
+            "password2": "Yangi parolni qayta kiriting",
+        }
+        for name, field in self.fields.items():
+            classes = field.widget.attrs.get("class", "").split()
+            if "form-control" not in classes:
+                classes.append("form-control")
+            if name in self.errors:
+                classes.append("is-invalid")
+            field.widget.attrs["class"] = " ".join(classes).strip()
+            field.widget.attrs.setdefault("placeholder", placeholders.get(name, ""))
+            field.label = labels.get(name, field.label)
+            field.help_text = ""
+            field.widget.attrs.setdefault("autocomplete", name)
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -92,10 +116,16 @@ class ProfileUpdateForm(forms.ModelForm):
         model = User
         fields = ["first_name", "last_name", "email"]
         widgets = {
-            "first_name": forms.TextInput(attrs={"class": "form-control"}),
-            "last_name": forms.TextInput(attrs={"class": "form-control"}),
-            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "first_name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ismingiz"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Familiyangiz"}),
+            "email": forms.EmailInput(attrs={"class": "form-control", "placeholder": "email@example.com"}),
         }
+        labels = {
+            "first_name": "Ism",
+            "last_name": "Familiya",
+            "email": "Email manzil",
+        }
+        help_texts = {field: "" for field in fields}
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -107,3 +137,8 @@ class ProfileUpdateForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError("Bu email boshqa foydalanuvchi tomonidan ishlatilmoqda.")
         return email
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs.setdefault("autocomplete", name)

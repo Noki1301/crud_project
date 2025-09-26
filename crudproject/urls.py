@@ -1,8 +1,9 @@
 from django.urls import path
 
-app_name = "dashboard"
 from .views import (
     DashboardHomeView,
+    DashboardLoginView,
+    DashboardLogoutView,
     UserListView,
     UserCreateView,
     UserUpdateView,
@@ -20,7 +21,11 @@ from .views import (
     OrderAdminDetailView,
 )
 
+app_name = "dashboard"
+
 urlpatterns = [
+    path("login/", DashboardLoginView.as_view(), name="login"),
+    path("logout/", DashboardLogoutView.as_view(), name="logout"),
     path("", DashboardHomeView.as_view(), name="home"),
     path("users/", UserListView.as_view(), name="user_list"),
     path("users/create/", UserCreateView.as_view(), name="user_create"),

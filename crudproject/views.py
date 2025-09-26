@@ -1,15 +1,12 @@
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
+from django.db.models import Q, Count, Sum, ProtectedError
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from .mixins import StaffRequiredMixin
-from .models import User
-from shop.models import Category, Product, Order
-from .forms import (
-    UserForm,
-    UserFilterForm,
-    CategoryForm,
-    ProductAdminForm,
-    ProductFilterForm,
-    OrderStatusForm,
-)
+from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import (
     ListView,
     DetailView,
@@ -18,11 +15,65 @@ from django.views.generic import (
     DeleteView,
     TemplateView,
 )
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.db.models import Q, Count, Sum, ProtectedError
 
-# Create your views here.
+from .forms import (
+    UserForm,
+    UserFilterForm,
+    CategoryForm,
+    ProductAdminForm,
+    ProductFilterForm,
+    OrderStatusForm,
+)
+from .mixins import StaffRequiredMixin
+from shop.models import Category, Product, Order
+
+User = get_user_model()
+
+
+class DashboardLoginView(LoginView):
+    template_name = "dashboard/auth_login.html"
+    form_class = AuthenticationForm
+    redirect_authenticated_user = False
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.session.get("dashboard_user_id"):
+            next_url = request.GET.get("next")
+            return redirect(next_url or reverse("dashboard:home"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        for field in form.fields.values():
+            classes = field.widget.attrs.get('class', '').split()
+            if 'form-control' not in classes:
+                classes.append('form-control')
+            field.widget.attrs['class'] = ' '.join(filter(None, classes))
+        return form
+
+    def form_valid(self, form):
+        user = form.get_user()
+        if not user.is_staff:
+            form.add_error(None, "Sizga admin panelga kirish huquqi berilmagan.")
+            return self.form_invalid(form)
+        self.request.session["dashboard_user_id"] = user.pk
+        self.request.session.modified = True
+        messages.success(self.request, "Admin panelga xush kelibsiz!")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return self.request.GET.get("next") or reverse_lazy("dashboard:home")
+
+
+class DashboardLogoutView(View):
+    def post(self, request, *args, **kwargs):
+        request.session.pop("dashboard_user_id", None)
+        messages.info(request, "Admin paneldan chiqdingiz.")
+        return redirect("dashboard:login")
+
+    def get(self, request, *args, **kwargs):
+        request.session.pop("dashboard_user_id", None)
+        messages.info(request, "Admin paneldan chiqdingiz.")
+        return redirect("dashboard:login")
 
 
 class UserListView(StaffRequiredMixin, ListView):
@@ -33,8 +84,8 @@ class UserListView(StaffRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        q = self.request.GET.get('q', '').strip()
-        status = self.request.GET.get('status', '').strip()
+        q = self.request.GET.get("q", "").strip()
+        status = self.request.GET.get("status", "").strip()
 
         if q:
             queryset = queryset.filter(
@@ -44,25 +95,25 @@ class UserListView(StaffRequiredMixin, ListView):
                 | Q(email__icontains=q)
             )
 
-        if status == 'active':
+        if status == "active":
             queryset = queryset.filter(is_active=True)
-        elif status == 'inactive':
+        elif status == "inactive":
             queryset = queryset.filter(is_active=False)
 
-        return queryset
+        return queryset.order_by('-date_joined')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['filter_form'] = UserFilterForm(self.request.GET or None)
-        context['active_filter'] = {
-            'q': self.request.GET.get('q', '').strip(),
-            'status': self.request.GET.get('status', '').strip(),
+        context["filter_form"] = UserFilterForm(self.request.GET or None)
+        context["active_filter"] = {
+            "q": self.request.GET.get("q", "").strip(),
+            "status": self.request.GET.get("status", "").strip(),
         }
-        context['stats'] = {
-            'total': User.objects.count(),
-            'active': User.objects.filter(is_active=True).count(),
-            'inactive': User.objects.filter(is_active=False).count(),
-            'filtered': context['paginator'].count if 'paginator' in context else context['object_list'].count(),
+        context["stats"] = {
+            "total": User.objects.count(),
+            "active": User.objects.filter(is_active=True).count(),
+            "inactive": User.objects.filter(is_active=False).count(),
+            "filtered": context["paginator"].count if "paginator" in context else context["object_list"].count(),
         }
         return context
 
@@ -81,6 +132,9 @@ class UserCreateView(StaffRequiredMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        if not self.object.has_usable_password():
+            self.object.set_unusable_password()
+            self.object.save(update_fields=['password'])
         messages.success(self.request, f"User '{self.object.username}' was created successfully.")
         return response
 
@@ -109,7 +163,6 @@ class UserDeleteView(StaffRequiredMixin, DeleteView):
         response = super().delete(request, *args, **kwargs)
         messages.success(request, f"User '{username}' was deleted successfully.")
         return response
-
 
 
 class DashboardHomeView(StaffRequiredMixin, TemplateView):

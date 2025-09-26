@@ -65,6 +65,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "shop.context_processors.cart",
             ],
+            "builtins": [
+                "crudproject.templatetags.dashboard_tags",
+            ],
         },
     },
 ]

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static dashboard_tags %}
 
 <!DOCTYPE html>
 
@@ -409,7 +409,7 @@
 							</li>
 
 							<li>
-								<a class="dropdown-item d-flex align-items-center" href="#">
+								<a class="dropdown-item d-flex align-items-center" href="{% url 'dashboard:logout' %}">
 									<i class="bi bi-box-arrow-right"></i>
 
 									<span>Sign Out</span>
@@ -431,7 +431,7 @@
 			<ul class="sidebar-nav" id="sidebar-nav">
 				<li class="nav-item">
 					<a
-						class="nav-link {% if current == 'home' %}active{% endif %}"
+						class="nav-link {% if current == 'home' %}active{% else %}collapsed{% endif %}"
 						href="{% url 'dashboard:home' %}"
 					>
 						<i class="bi bi-speedometer2"></i>
@@ -440,7 +440,7 @@
 				</li>
 				<li class="nav-item">
 					<a
-						class="nav-link {% if current == 'user_list' or current == 'user_create' or current == 'user_update' or current == 'user_detail' %}active{% endif %}"
+						class="nav-link {% if current|in_list:'user_list,user_create,user_update,user_delete,user_detail' %}active{% else %}collapsed{% endif %}"
 						href="{% url 'dashboard:user_list' %}"
 					>
 						<i class="bi bi-people"></i>
@@ -449,7 +449,7 @@
 				</li>
 				<li class="nav-item">
 					<a
-						class="nav-link {% if current == 'product_list' or current == 'product_create' or current == 'product_update' or current == 'product_delete' or current == 'category_list' or current == 'category_create' or current == 'category_update' or current == 'category_delete' %}{% else %}collapsed{% endif %}"
+						class="nav-link {% if current|in_list:'product_list,product_create,product_update,product_delete,category_list,category_create,category_update,category_delete' %}{% else %}collapsed{% endif %}"
 						data-bs-target="#catalog-nav"
 						data-bs-toggle="collapse"
 						href="#"
@@ -460,28 +460,34 @@
 					</a>
 					<ul
 						id="catalog-nav"
-						class="nav-content collapse {% if current == 'product_list' or current == 'product_create' or current == 'product_update' or current == 'product_delete' or current == 'category_list' or current == 'category_create' or current == 'category_update' or current == 'category_delete' %}show{% endif %}"
+						class="nav-content collapse {% if current|in_list:'product_list,product_create,product_update,product_delete,category_list,category_create,category_update,category_delete' %}show{% endif %}"
 						data-bs-parent="#sidebar-nav"
 					>
 						<li>
 							<a
 								href="{% url 'dashboard:product_list' %}"
-								class="{% if current == 'product_list' or current == 'product_create' or current == 'product_update' or current == 'product_delete' %}active{% endif %}"
-								><i class="bi bi-circle"></i><span>Mahsulotlar</span></a
+								class="{% if current|in_list:'product_list,product_create,product_update,product_delete' %}active{% endif %}"
+								>
+									<i class="bi bi-box-seam"></i>
+									<span>Mahsulotlar</span>
+								</a
 							>
 						</li>
 						<li>
 							<a
 								href="{% url 'dashboard:category_list' %}"
-								class="{% if current == 'category_list' or current == 'category_create' or current == 'category_update' or current == 'category_delete' %}active{% endif %}"
-								><i class="bi bi-circle"></i><span>Kategoriyalar</span></a
+								class="{% if current|in_list:'category_list,category_create,category_update,category_delete' %}active{% endif %}"
+								>
+									<i class="bi bi-diagram-3"></i>
+									<span>Kategoriyalar</span>
+								</a
 							>
 						</li>
 					</ul>
 				</li>
 				<li class="nav-item">
 					<a
-						class="nav-link {% if current == 'order_list' or current == 'order_detail' %}active{% endif %}"
+						class="nav-link {% if current|in_list:'order_list,order_detail' %}active{% else %}collapsed{% endif %}"
 						href="{% url 'dashboard:order_list' %}"
 					>
 						<i class="bi bi-basket"></i>

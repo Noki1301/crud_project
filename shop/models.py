@@ -7,7 +7,6 @@ from django.utils.text import slugify
 
 User = settings.AUTH_USER_MODEL
 
-
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

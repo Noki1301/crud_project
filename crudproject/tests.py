@@ -1,18 +1,32 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-from crudproject.models import User
+
+User = get_user_model()
 
 
 class UserViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create(
+        self.staff = User.objects.create_user(
+            username="admin",
+            email="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            is_staff=True,
+        )
+        self.user = User.objects.create_user(
             username="janedoe",
             email="jane@example.com",
+            password="secret123",
             first_name="Jane",
             last_name="Doe",
             is_active=True,
         )
+        session = self.client.session
+        session["dashboard_user_id"] = self.staff.pk
+        session.save()
 
     def test_user_list_filters_and_pagination(self):
         extra_users = [
@@ -27,7 +41,7 @@ class UserViewTests(TestCase):
         ]
         User.objects.bulk_create(extra_users)
 
-        url = reverse("user_list")
+        url = reverse("dashboard:user_list")
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -47,30 +61,32 @@ class UserViewTests(TestCase):
 
     def test_create_user_success_message(self):
         response = self.client.post(
-            reverse("user_create"),
+            reverse("dashboard:user_create"),
             {
                 "username": "newuser",
                 "email": "newuser@example.com",
                 "first_name": "New",
                 "last_name": "User",
                 "is_active": True,
+                "is_staff": False,
             },
             follow=True,
         )
-        self.assertRedirects(response, reverse("user_list"))
+        self.assertRedirects(response, reverse("dashboard:user_list"))
         self.assertTrue(User.objects.filter(username="newuser").exists())
         messages = list(response.context["messages"])
         self.assertTrue(any("created successfully" in str(message) for message in messages))
 
     def test_update_user_success_message(self):
         response = self.client.post(
-            reverse("user_update", args=[self.user.pk]),
+            reverse("dashboard:user_update", args=[self.user.pk]),
             {
                 "username": "janedoe",
                 "email": "jane@example.com",
                 "first_name": "Janet",
                 "last_name": "Doe",
                 "is_active": True,
+                "is_staff": False,
             },
             follow=True,
         )
@@ -80,8 +96,8 @@ class UserViewTests(TestCase):
         self.assertTrue(any("updated successfully" in str(message) for message in messages))
 
     def test_delete_user_via_post(self):
-        response = self.client.post(reverse("user_delete", args=[self.user.pk]), follow=True)
-        self.assertRedirects(response, reverse("user_list"))
+        response = self.client.post(reverse("dashboard:user_delete", args=[self.user.pk]), follow=True)
+        self.assertRedirects(response, reverse("dashboard:user_list"))
         self.assertFalse(User.objects.filter(pk=self.user.pk).exists())
         messages = list(response.context["messages"])
         self.assertTrue(any("deleted successfully" in str(message) for message in messages))

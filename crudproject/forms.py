@@ -1,21 +1,34 @@
 from django import forms
+from django.contrib.auth import get_user_model
 
-from .models import User
 from shop.models import Category, Product, ProductImage, Order
+
+User = get_user_model()
 
 
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name", "is_active", "avatar"]
+        fields = ["username", "email", "first_name", "last_name", "is_active", "is_staff"]
         widgets = {
             "username": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "avatar": forms.ClearableFileInput(attrs={"class": "form-control", "accept": "image/*"}),
+            "is_staff": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError('Email is required.')
+        qs = User.objects.filter(email__iexact=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('This email is already in use.')
+        return email
 
 
 class UserFilterForm(forms.Form):
@@ -34,7 +47,6 @@ class UserFilterForm(forms.Form):
         ),
         widget=forms.Select(attrs={"class": "form-select"}),
     )
-
 
 
 class CategoryForm(forms.ModelForm):

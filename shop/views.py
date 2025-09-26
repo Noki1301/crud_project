@@ -237,8 +237,18 @@ class StoreLoginView(View):
         from django.contrib.auth.forms import AuthenticationForm
 
         form = AuthenticationForm(request, data=data)
-        form.fields["username"].widget.attrs.update({"class": "form-control", "placeholder": "Login"})
-        form.fields["password"].widget.attrs.update({"class": "form-control", "placeholder": "Parol"})
+        labels = {"username": "Login", "password": "Parol"}
+        placeholders = {"username": "foydalanuvchi nomi", "password": "sizning parolingiz"}
+        for name, field in form.fields.items():
+            classes = field.widget.attrs.get("class", "").split()
+            if "form-control" not in classes:
+                classes.append("form-control")
+            if form.is_bound and name in form.errors:
+                classes.append("is-invalid")
+            field.widget.attrs["class"] = " ".join(classes).strip()
+            field.widget.attrs.setdefault("placeholder", placeholders.get(name, ""))
+            field.label = labels.get(name, field.label)
+            field.help_text = ""
         return form
 
     def get(self, request):
@@ -402,11 +412,24 @@ class AccountPasswordChangeView(AccountBaseView, PasswordChangeView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        for field in form.fields.values():
+        labels = {
+            "old_password": "Joriy parol",
+            "new_password1": "Yangi parol",
+            "new_password2": "Yangi parolni tasdiqlang",
+        }
+        placeholders = {
+            "old_password": "Oldingi parolingiz",
+            "new_password1": "Kamida 8 ta belgi",
+            "new_password2": "Yangi parolni qayta yozing",
+        }
+        for name, field in form.fields.items():
             classes = field.widget.attrs.get("class", "").split()
             if "form-control" not in classes:
                 classes.append("form-control")
             field.widget.attrs["class"] = " ".join(classes).strip()
+            field.widget.attrs["placeholder"] = placeholders.get(name, "")
+            field.label = labels.get(name, field.label)
+            field.help_text = ""
         return form
 
     def get_context_data(self, **kwargs):

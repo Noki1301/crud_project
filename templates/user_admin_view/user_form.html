@@ -15,7 +15,7 @@
   </div>
 
   <section class="section">
-    <form method="post" enctype="multipart/form-data" novalidate class="row g-4">
+    <form method="post" novalidate class="row g-4">
       {% csrf_token %}
       {{ form.non_field_errors }}
       {% for hidden_field in form.hidden_fields %}
@@ -64,7 +64,7 @@
                 {% endfor %}
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold" for="{{ form.first_name.id_for_label }}">First Name <span class="text-danger">*</span></label>
+                <label class="form-label fw-semibold" for="{{ form.first_name.id_for_label }}">First Name</label>
                 {{ form.first_name }}
                 {% if form.first_name.help_text %}
                   <div class="form-text">{{ form.first_name.help_text }}</div>
@@ -74,7 +74,7 @@
                 {% endfor %}
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold" for="{{ form.last_name.id_for_label }}">Last Name <span class="text-danger">*</span></label>
+                <label class="form-label fw-semibold" for="{{ form.last_name.id_for_label }}">Last Name</label>
                 {{ form.last_name }}
                 {% if form.last_name.help_text %}
                   <div class="form-text">{{ form.last_name.help_text }}</div>
@@ -91,32 +91,14 @@
       <div class="col-xxl-4">
         <div class="card border-0 shadow-sm h-100">
           <div class="card-header bg-transparent border-0 pb-0">
-            <h5 class="card-title mb-0">Status &amp; Meta</h5>
+            <h5 class="card-title mb-0">Access Control</h5>
           </div>
           <div class="card-body d-flex flex-column gap-4">
-            <div class="text-center">
-              {% if view.object and view.object.avatar %}
-                <img src="{{ view.object.avatar.url }}" alt="{{ view.object.username }} avatar" class="rounded-circle border border-primary-subtle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
-              {% else %}
-                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center border mb-3" style="width: 120px; height: 120px;">
-                  <i class="bi bi-person fs-1 text-muted"></i>
-                </div>
-              {% endif %}
-              <label class="form-label fw-semibold" for="{{ form.avatar.id_for_label }}">Profile Photo</label>
-              {{ form.avatar }}
-              {% if form.avatar.help_text %}
-                <div class="form-text">{{ form.avatar.help_text }}</div>
-              {% endif %}
-              {% for error in form.avatar.errors %}
-                <div class="invalid-feedback d-block">{{ error }}</div>
-              {% endfor %}
-            </div>
-
             <div>
-              <label class="form-label fw-semibold d-block">Activation</label>
-              <div class="form-check form-switch">
+              <label class="form-label fw-semibold d-block">Account Status</label>
+              <div class="form-check form-switch mb-2">
                 {{ form.is_active }}
-                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Mark user as active</label>
+                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Activate this user</label>
               </div>
               {% if form.is_active.help_text %}
                 <div class="form-text">{{ form.is_active.help_text }}</div>
@@ -126,9 +108,23 @@
               {% endfor %}
             </div>
 
+            <div>
+              <label class="form-label fw-semibold d-block">Admin Privileges</label>
+              <div class="form-check form-switch mb-0">
+                {{ form.is_staff }}
+                <label class="form-check-label" for="{{ form.is_staff.id_for_label }}">Allow access to admin panel</label>
+              </div>
+              {% if form.is_staff.help_text %}
+                <div class="form-text">{{ form.is_staff.help_text }}</div>
+              {% endif %}
+              {% for error in form.is_staff.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
             {% if view.object %}
               <div class="bg-light border rounded-3 p-3">
-                <h6 class="text-uppercase text-muted small mb-2">Timeline</h6>
+                <h6 class="text-uppercase text-muted small mb-2">Account Timeline</h6>
                 <ul class="list-unstyled mb-0 small">
                   <li class="d-flex align-items-center gap-2 mb-2">
                     <i class="bi bi-clock-history text-primary"></i>
@@ -136,7 +132,7 @@
                   </li>
                   <li class="d-flex align-items-center gap-2">
                     <i class="bi bi-arrow-repeat text-success"></i>
-                    Updated <strong>{{ view.object.updated_at|date:"M d, Y H:i" }}</strong>
+                    Last login <strong>{{ view.object.last_login|date:"M d, Y H:i"|default:'-' }}</strong>
                   </li>
                 </ul>
               </div>
